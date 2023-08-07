@@ -67,7 +67,7 @@ def main():
                 'nation': entry,
                 'bank': deck_info.get('BANK', 0),
                 'deckValue': deck_info.get('DECK_VALUE', 0),
-                'junkValue': junk_value
+                'junkValue': round(junk_value, 2)
             }
 
             sleep(0.7)
@@ -156,9 +156,10 @@ def main():
         output_file.write("</tr>\n")
 
         for entry in deck_data:
-            output_file.write(f"<tr><td><a target='_blank' href='https://www.nationstates.net/container={entry['nation']}/nation={entry['nation']}'>{entry['nation']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={entry['nation']}/nation={entry['nation']}/value_deck=1'>{entry['bank']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={entry['nation']}/nation={entry['nation']}/value_deck=1'>{entry['deckValue']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={entry['nation']}/nation={entry['nation']}'>{entry['junkValue']}</a></td>")
+            container_url = entry['nation'].replace(' ', '_')
+            output_file.write(f"<tr><td><a target='_blank' href='https://www.nationstates.net/container={container_url}/nation={container_url}'>{entry['nation']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}/value_deck=1'>{entry['bank']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}/value_deck=1'>{entry['deckValue']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}'>{entry['junkValue']}</a></td>")
             if args.elevated:
-                output_file.write(f"<td><a target='_blank' href='https://www.nationstates.net/page=deck/container={entry['nation']}/nation={entry['nation']}'>{entry['packs']}</a></td><td><a target='_blank' href='https://www.nationstates.net/container={entry['nation']}/nation={entry['nation']}'>{entry['issues']}</a></td>")
+                output_file.write(f"<td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}'>{entry['packs']}</a></td><td><a target='_blank' href='https://www.nationstates.net/container={container_url}/nation={container_url}'>{entry['issues']}</a></td>")
             output_file.write("</tr>\n")
 
         output_file.write("</table>\n")
