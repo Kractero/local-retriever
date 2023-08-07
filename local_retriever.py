@@ -34,56 +34,65 @@ def main():
             raise ValueError("X-Password value is missing or empty.")
 
     for entry in nation_list:
-        deck_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+deck;nationname={entry}'
-        response = requests.get(deck_url, headers=headers)
-        deck_data_xml = xmltodict.parse(response.text)
-        category_counts = {}
+        try:
+            deck_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+deck;nationname={entry}'
+            response = requests.get(deck_url, headers=headers)
+            deck_data_xml = xmltodict.parse(response.text)
+            category_counts = {}
 
-        if 'CARDS' in deck_data_xml:
-            if 'DECK' in deck_data_xml['CARDS'] and deck_data_xml['CARDS']['DECK'] is not None:
-                deck = deck_data_xml['CARDS']['DECK']['CARD']
-                for card in deck:
-                    category = card['CATEGORY']
-                    category_counts[category] = category_counts.get(category, 0) + 1
+            if 'CARDS' in deck_data_xml:
+                if 'DECK' in deck_data_xml['CARDS'] and deck_data_xml['CARDS']['DECK'] is not None:
+                    deck = deck_data_xml['CARDS']['DECK']['CARD']
+                    for card in deck:
+                        category = card['CATEGORY']
+                        category_counts[category] = category_counts.get(category, 0) + 1
 
-        junk_value = (
-            (category_counts.get('legendary', 0) * 1) +
-            (category_counts.get('epic', 0) * 0.5) +
-            (category_counts.get('common', 0) * 0.01) +
-            (category_counts.get('uncommon', 0) * 0.05) +
-            (category_counts.get('ultra-rare', 0) * 0.2)
-        )
+            junk_value = (
+                (category_counts.get('legendary', 0) * 1) +
+                (category_counts.get('epic', 0) * 0.5) +
+                (category_counts.get('common', 0) * 0.01) +
+                (category_counts.get('uncommon', 0) * 0.05) +
+                (category_counts.get('ultra-rare', 0) * 0.2)
+            )
 
-        sleep (0.7)
+            sleep (0.7)
+            print ("Retrieved Bank and JV for " + entry)
 
-        owner_info_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+info;nationname={entry}'
-        response = requests.get(owner_info_url, headers=headers)
-        deck_owner_info_xml = xmltodict.parse(response.text)
-        deck_info = deck_owner_info_xml.get('CARDS', {}).get('INFO', {})
+            owner_info_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+info;nationname={entry}'
+            response = requests.get(owner_info_url, headers=headers)
+            deck_owner_info_xml = xmltodict.parse(response.text)
+            deck_info = deck_owner_info_xml.get('CARDS', {}).get('INFO', {})
 
-        data = {
-            'nation': entry,
-            'bank': deck_info.get('BANK', 0),
-            'deckValue': deck_info.get('DECK_VALUE', 0),
-            'junkValue': junk_value
-        }
-
-        sleep(0.7)
-
-        if args.elevated:
-            pack_and_issues_url = f'https://www.nationstates.net/cgi-bin/api.cgi?nation={entry}&q=issues+packs'
-            response = requests.get(pack_and_issues_url, headers=headers)
-            pack_and_issues_xml = xmltodict.parse(response.text)
-            packs = pack_and_issues_xml.get('NATION', {}).get('PACKS', 0)
-            issues_array = pack_and_issues_xml.get('NATION', {}).get('ISSUES', {}).get('ISSUE', [])
-            number_of_issues = len(issues_array)
-
-            data['packs'] = packs
-            data['issues'] = number_of_issues
+            data = {
+                'nation': entry,
+                'bank': deck_info.get('BANK', 0),
+                'deckValue': deck_info.get('DECK_VALUE', 0),
+                'junkValue': junk_value
+            }
 
             sleep(0.7)
 
-        deck_data.append(data)
+            print ("Retrieved DV for " + entry)
+
+            if args.elevated:
+                pack_and_issues_url = f'https://www.nationstates.net/cgi-bin/api.cgi?nation={entry}&q=issues+packs'
+                response = requests.get(pack_and_issues_url, headers=headers)
+                pack_and_issues_xml = xmltodict.parse(response.text)
+                packs = pack_and_issues_xml.get('NATION', {}).get('PACKS', 0)
+                issues_array = pack_and_issues_xml.get('NATION', {}).get('ISSUES', {}).get('ISSUE', [])
+                number_of_issues = len(issues_array)
+
+                data['packs'] = packs
+                data['issues'] = number_of_issues
+
+                sleep(0.7)
+                print ("Retrieved packs and issues for " + entry)
+
+            deck_data.append(data)
+        except Exception as e:
+            print(f"Error occurred for {entry}: {e}")
+            break
+
 
     with open('local_retriever.html', 'w') as output_file:
         output_file.write('''
