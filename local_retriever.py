@@ -156,7 +156,7 @@ def main():
         output_file.write("</tr>\n")
 
         for entry in deck_data:
-            container_url = entry['nation'].replace(' ', '_')
+            container_url = lower(entry['nation'].replace(' ', '_'))
             output_file.write(f"<tr><td><a target='_blank' href='https://www.nationstates.net/container={container_url}/nation={container_url}'>{entry['nation']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}/value_deck=1'>{entry['bank']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}/value_deck=1'>{entry['deckValue']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}'>{entry['junkValue']}</a></td>")
             if args.elevated:
                 output_file.write(f"<td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}'>{entry['packs']}</a></td><td><a target='_blank' href='https://www.nationstates.net/container={container_url}/nation={container_url}'>{entry['issues']}</a></td>")
@@ -175,7 +175,7 @@ def main():
                                 myidx++;
                             }
                             row.nextElementSibling.childNodes[myidx].querySelector("a").focus();
-                            row.parentNode.removeChild(row);
+                            # row.parentNode.removeChild(row);
                         });
                     });
                     const sortableColumns = document.querySelectorAll('.sort');
