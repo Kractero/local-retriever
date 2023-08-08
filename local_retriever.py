@@ -90,8 +90,8 @@ def main():
 
             deck_data.append(data)
         except Exception as e:
-            print(f"Error occurred for {entry}: {e}")
-            break
+            print(f"Error occurred with {entry}, skipping")
+            continue
 
 
     with open('local_retriever.html', 'w') as output_file:
