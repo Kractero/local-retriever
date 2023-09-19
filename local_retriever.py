@@ -35,7 +35,8 @@ def main():
 
     for entry in nation_list:
         try:
-            deck_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+deck;nationname={entry}'
+            sleep (0.7)
+            deck_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+deck+info;nationname={entry}'
             response = requests.get(deck_url, headers=headers)
             deck_data_xml = xmltodict.parse(response.text)
             category_counts = {}
@@ -55,13 +56,9 @@ def main():
                 (category_counts.get('ultra-rare', 0) * 0.2)
             )
 
-            sleep (0.7)
             print ("Retrieved Bank and JV for " + entry)
 
-            owner_info_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+info;nationname={entry}'
-            response = requests.get(owner_info_url, headers=headers)
-            deck_owner_info_xml = xmltodict.parse(response.text)
-            deck_info = deck_owner_info_xml.get('CARDS', {}).get('INFO', {})
+            deck_info = deck_data_xml.get('CARDS', {}).get('INFO', {})
 
             data = {
                 'nation': entry,
@@ -70,11 +67,11 @@ def main():
                 'junkValue': round(junk_value, 2)
             }
 
-            sleep(0.7)
 
             print ("Retrieved DV for " + entry)
 
             if args.elevated:
+                sleep(0.7)
                 pack_and_issues_url = f'https://www.nationstates.net/cgi-bin/api.cgi?nation={entry}&q=issues+packs'
                 response = requests.get(pack_and_issues_url, headers=headers)
                 pack_and_issues_xml = xmltodict.parse(response.text)
@@ -84,8 +81,6 @@ def main():
 
                 data['packs'] = packs
                 data['issues'] = number_of_issues
-
-                sleep(0.7)
                 print ("Retrieved packs and issues for " + entry)
 
             deck_data.append(data)
@@ -156,10 +151,10 @@ def main():
         output_file.write("</tr>\n")
 
         for entry in deck_data:
-            container_url = lower(entry['nation'].replace(' ', '_'))
-            output_file.write(f"<tr><td><a target='_blank' href='https://www.nationstates.net/container={container_url}/nation={container_url}'>{entry['nation']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}/value_deck=1'>{entry['bank']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}/value_deck=1'>{entry['deckValue']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}'>{entry['junkValue']}</a></td>")
+            container_url = entry['nation'].lower().replace(' ', '_')
+            output_file.write(f"<tr><td><a target='_blank' href='https://www.nationstates.net/nation={container_url}'>{entry['nation']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/nation={container_url}/value_deck=1'>{entry['bank']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/nation={container_url}/value_deck=1'>{entry['deckValue']}</a></td><td><a target='_blank' href='https://www.nationstates.net/page=deck/nation={container_url}'>{entry['junkValue']}</a></td>")
             if args.elevated:
-                output_file.write(f"<td><a target='_blank' href='https://www.nationstates.net/page=deck/container={container_url}/nation={container_url}'>{entry['packs']}</a></td><td><a target='_blank' href='https://www.nationstates.net/container={container_url}/nation={container_url}'>{entry['issues']}</a></td>")
+                output_file.write(f"<td><a target='_blank' href='https://www.nationstates.net/page=deck/nation={container_url}'>{entry['packs']}</a></td><td><a target='_blank' href='https://www.nationstates.net/nation={container_url}'>{entry['issues']}</a></td>")
             output_file.write("</tr>\n")
 
         output_file.write("</table>\n")
@@ -175,7 +170,7 @@ def main():
                                 myidx++;
                             }
                             row.nextElementSibling.childNodes[myidx].querySelector("a").focus();
-                            # row.parentNode.removeChild(row);
+                            row.parentNode.removeChild(row);
                         });
                     });
                     const sortableColumns = document.querySelectorAll('.sort');
