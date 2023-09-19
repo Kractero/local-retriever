@@ -14,10 +14,9 @@ def main():
 
     args = parser.parse_args()
 
-    with open('puppets_list.txt', 'r') as file:
-        nation_list = file.read().splitlines()
+    names = open('puppets_list.txt').read().split('\n')
 
-    if not nation_list:
+    if not names:
         raise ValueError("No puppet list.")
 
     deck_data = []
@@ -33,7 +32,7 @@ def main():
         if not headers['X-Password']:
             raise ValueError("X-Password value is missing or empty.")
 
-    for entry in nation_list:
+    for entry in names:
         try:
             sleep (0.7)
             deck_url = f'https://www.nationstates.net/cgi-bin/api.cgi?q=cards+deck+info;nationname={entry}'
